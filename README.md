@@ -37,6 +37,9 @@ cd bot-x9
 ```
 npm install
 ```
+```
+cd demo
+```
 Para testar basta executar 
 ```
 ts-node index.ts
