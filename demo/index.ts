@@ -74,40 +74,9 @@ create({
 
 function start(client) {
   const badWords = [
-    //lista de palavras indesejadas
-    "acefalo",
-    "anal",
-    "anus",
-    "arombado",
-    "baba-ovo",
-    "babaca",
-    "babaovo",
-    "bacanal",
-    "bacura",
-    "teu cu",
-    "piroca",
-    "pomba",
-    "fdp",
-    "bunda",
-    "porra",
-    "caralho",
-    "vtnc",
-    "puta",
-    "rapariga",
-    "Babaca",
-    "pau",
-    "tarraqueta",
-    "foda",
-    "foder",
-    "Carai",
-    "cagando",
-    "fuder",
-    "trouxa",
-    "cu",
-    "buceta",
-    "priquito",
-    "puto",
-    "viado",
+   'palavrao1',
+   'palavrao2',
+   '...'
   ];
 
   
