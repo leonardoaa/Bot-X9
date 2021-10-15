@@ -1,13 +1,14 @@
 # Bot X9
 Beta 0.0.1
 
-Bot X9 é um bot cujo seu objetivo é administrar grupos no whatsapp, no entanto possui funcionalidades que funcionam no privado
+Bot X9 é um bot cujo seu objetivo é administrar grupos no whatsapp, no entanto possui funcionalidades que funcionam no privado.
+
 O bot é dividido em tarefas automáticas e disparadas.
 ### Automáticas
 * Dar boas vindas a um novo integrante do grupo
 * Dar tchau a um integrante que sai do grupo
 * Alertar caso algum integrante escreva um palavrão
-### Desparadas
+### Disparadas
 As ações que podem ser desparadas pode ser encontradas utilizando o comando "!menu"
 * "!A" Marca todos os administradores
 * "!L" Mostra o link de convite para o grupo
