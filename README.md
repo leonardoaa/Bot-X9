@@ -63,6 +63,7 @@ O projeto se encontra na versão beta 0.0.1
 Todas as pessoas que Contribuíram para com o projeto
 
 * **Eduardo Bezerra**
+* **Felipe Sartori** https://github.com/felipesartori
 
 ## 📄 Licença
 
