@@ -43,8 +43,7 @@ Após isso estará em pleno funcionamento caso o processo ocorra normalmente.
 
 * [NodeJs](https://nodejs.org/en/) - Utilizado para servir a aplicação
 * [TypeScript](https://www.typescriptlang.org/) - Linguagem Utilizada para o desenvolvimento
-* [Puppeteer](https://github.com/puppeteer/puppeteer) - Biblioteca utilizada para a manipulação do navegador Chrome/Chromium
-* [swagger](https://swagger.io/) - Desenvolvimento da API
+* [Wa-automate](https://github.com/open-wa/wa-automate-nodejs) - Core da aplicação
 
 ## 📌 Versão
 
