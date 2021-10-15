@@ -20,7 +20,7 @@ As ações que podem ser desparadas pode ser encontradas utilizando o comando "!
 ### 🔧 Instalação
 
 O Processo de instalação é bem simples
-(Entende-se que você possui o nodeJs e o git instalado)
+(Entende-se que você possui o nodeJs, typescript e o git instalado)
 
 ```
 git clone https://github.com/electron-userland/electron-builder.git
@@ -33,7 +33,7 @@ npm install
 ```
 Para testar basta executar 
 ```
-npm start
+ts-node index.ts
 ```
 O bot iniciará a rotina de início, em seguida surgirá um qrcode para ser escaneado através do whatsapp a qual deseja utilizar.
 Após isso estará em pleno funcionamento caso o processo ocorra normalmente.
