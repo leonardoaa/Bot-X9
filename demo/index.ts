@@ -61,20 +61,20 @@ ev.on("sessionDataBase64.**", async (sessionData, sessionId) => {
 
 create({
   sessionId: "",
-  authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
+  authTimeout: 60, //Tempo aguardado para se conectar ao whatsapp
   blockCrashLogs: true,
   disableSpins: true,
   useChrome: true,
-  headless: true,
+  headless: true, //Caso true não irá mostrar a janela do chrome
   hostNotificationLang: NotificationLanguage.PTBR,
   logConsole: false,
   popup: true,
-  qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
+  qrTimeout: 0, //Estando 0, o código QR não possuirá um tempo de vida
 }).then((client) => start(client));
 
 function start(client) {
   const badWords = [
-    //lista de palavras proíbidas
+    //lista de palavras indesejadas
     "acefalo",
     "anal",
     "anus",
@@ -110,8 +110,8 @@ function start(client) {
     "viado",
   ];
 
-  const onAdded = client.onAddedToGroup(async (message) => {
-    //await client.sendYoutubeLink(message.id, "https://youtu.be/0WxDrVUrSvI");
+  
+  const onAdded = client.onAddedToGroup(async (message) => {  //Ao ser adicionado em um grupo dispara uma frase
     await client.sendText(
       message.id,
       `Obrigado por me adicionar ao grupo *${message.formattedTitle.toUpperCase()}* 😁😎`
@@ -119,10 +119,9 @@ function start(client) {
   });
 
   const deletedMessageRecovery = client.onMessageDeleted(async (message) => {
-    if (message.type === "image") {
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
-      const mediaData = await decryptMedia(message);
-
+    if (message.type === "image") { //Verifica se a mensagem apagada foi uma imagem
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa a imagem, convertendo para base64
       await client.sendImage(
         message.from,
         `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
@@ -131,9 +130,9 @@ function start(client) {
       );
     }
 
-    if (message.type === "audio") {
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
-      const mediaData = await decryptMedia(message);
+    if (message.type === "audio") { //Verifica se a mensagem apagada foi um áudio
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`;  //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
       await client.sendText(
         message.from,
         `@${message.author} Apagou o seguinte áudio enviado:🧐 `
@@ -145,9 +144,9 @@ function start(client) {
       );
     }
 
-    if (message.type === "ptt") {
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
-      const mediaData = await decryptMedia(message);
+    if (message.type === "ptt") { //Verifica se a mensagem apagada foi um áudio gravado
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
       await client.sendText(
         message.from,
         `@${message.author} Apagou o seguinte áudio gravado:🧐`
@@ -159,16 +158,16 @@ function start(client) {
       );
     }
 
-    if (message.type === "chat") {
+    if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
       await client.sendText(
         message.from,
         `@${message.author} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
       );
     }
 
-    if (message.type === "document" || message.type === "video") {
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`;
-      const mediaData = await decryptMedia(message);
+    if (message.type === "document" || message.type === "video") {  //Verifica se a mensagem apagada uma imagem ou vídeo
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o documento ou vídeo, convertendo para base64
       if (message.type === "video") {
         await client.sendText(
           message.from,
@@ -186,7 +185,7 @@ function start(client) {
         filename
       );
     }
-    if (message.type === "sticker") {
+    if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
       await client.sendText(
         message.from,
         `@${message.author} Apagou uma figurinha. Ainda não consigo mostrar figurinhas apagadas 😔`
@@ -194,13 +193,12 @@ function start(client) {
     }
   });
 
-  const convertToStick = client.onMessage(async (message) => {
+  const convertToStick = client.onMessage(async (message) => { 
     if (!message.chat.isGroup) {
       if (message.mimetype) {
         const mediaData = await decryptMedia(message);
-        if (message.type === "image") {
-          console.log(message.caption);
-          const metadata = {
+        if (message.type === "image") { //Verifica se o que foi enviado foi uma imagem. Caso sim, converte para uma figurinha
+          const metadata = { //metadata de todas as figurinhas que são geradas pelo bot
             author: "Bot X9",
             keepScale: true,
             cropPosition: "entropy",
@@ -216,7 +214,7 @@ function start(client) {
               await client.sendText(message.from, `Pronto 😁`);
             });
         }
-        if (message.type === "video") {
+        if (message.type === "video") { //Verifica se o que foi enviado foi um vídeo. Caso sim, converte para uma figurinha animada
           await client.sendText(
             message.from,
             "Transformando video em figurinha...aguarde"
@@ -233,18 +231,18 @@ function start(client) {
       let user;
       let isBadWord;
       let sender;
-      const arrayMsg = message.body.split(" ");
-      arrayMsg.forEach((wordOfMsg) => {
-        badWords.forEach((element) => {
+      const arrayMsg = message.body.split(" "); //A cada mensagem de um integrante do grupo o bot  transforma em um ARRAY
+      arrayMsg.forEach((wordOfMsg) => { //Percorre o ARRAY de palavras da frase
+        badWords.forEach((element) => { // Percorre o array de palavrões
           const word = wordOfMsg.toLowerCase();
-          if (word == element) {
+          if (word == element) { //Verifica se alguma palavra consta na lista de palavrões e colhe as informações do integrante(Sender)
             sender = message.sender.id;
             user = message.from;
             isBadWord = true;
           }
         });
       });
-      if (isBadWord === true) {
+      if (isBadWord === true) { //Emite uma mensagem alertando que um integrante digitou um palavrão
         await client.sendTextWithMentions(
           user,
           `@${sender} Digitou um palavrão. Por favor, acalme-se 😅. Caso continue os administradores tomarão as providências. 🤨 `
@@ -254,8 +252,8 @@ function start(client) {
   });
 
   const menu = client.onMessage(async (message) => {
-    if (message.type === "chat" && message.chat.isGroup) {
-      if (message.body.toLowerCase() === "!menu") {
+    if (message.type === "chat" && message.chat.isGroup) { //Verifica se a mensagem é do tipo chat e se veio de um grupo
+      if (message.body.toLowerCase() === "!menu") { //Caso a mensagem digitada seja "!menu" dispara a lista de funcionalidades "Disparadas" 
         await client.sendText(message.from, "OK!😁");
         await client.sendText(
           message.from,
@@ -267,7 +265,7 @@ function start(client) {
 
   const getLinkGroup = client.onMessage(async (message) => {
     if (message.type === "chat") {
-      if (message.body.toLowerCase() === "!l") {
+      if (message.body.toLowerCase() === "!l") { // Faz parte do Menu, envia o link do grupo caso a mensagem digitada seja "!L"
         try {
           client.getGroupInviteLink(message.from).then(async (resposta) => {
             await client.sendText(message.from, resposta);
@@ -280,8 +278,9 @@ function start(client) {
   });
 
   const getAdmins = client.onMessage(async (message) => {
+
     if (message.type === "chat") {
-      if (message.body.toLowerCase() === "!a") {
+      if (message.body.toLowerCase() === "!a") { //Faz parte do menu, chama atenção de todos os administradores caso a mensagem digitada seja "!A"
         try {
           client.getGroupAdmins(message.from).then(async (admins) => {
             await client.sendText(message.from, "Marcando administradores:");
@@ -298,23 +297,22 @@ function start(client) {
 
   const onAddOrRemoveInGroup = client.onGlobalParticipantsChanged(
     async (participantChangedEvent) => {
-      if (participantChangedEvent.who !== "558581213559@c.us") {
+      if (participantChangedEvent.who !== "558581213559@c.us") { //Verifica se um novo integrante foi adicionado ou removido de um grupo, e também se o número adicionado é diferente do utilizado para o bot
         switch (participantChangedEvent.action) {
           case "remove":
-            await client.sendText(
+            await client.sendText( //Verifica se o novo integrante foi removido, caso sim retorna uma mensagem
               participantChangedEvent.chat,
               `Adeus 🖐 @${participantChangedEvent.who}, vai-te embora, ninguém te adora 😂😁😎🤡.`
             );
             break;
           case "add":
-            if (participantChangedEvent.by === "invite") {
-              //função para expulsar usuário caso não responda em 30 segundos
+            if (participantChangedEvent.by === "invite") { //Verifica se o novo integrante foi convidado por link, caso sim retorna uma mensagem
               await client.sendText(
                 participantChangedEvent.chat,
                 `Seja bem vindo @${participantChangedEvent.who}. Que legal! Você foi convidado por algúem. Você pode nos contar quem foi?\nLeia a descrição do grupo 👁😃 para ficar por dentro das regras `
               );
             } else {
-              await client.sendText(
+              await client.sendText(  //Verifica se o novo integrante foi adicionado por outro integrante, caso sim retorna uma mensagem
                 participantChangedEvent.chat,
                 `Seja bem vindo @${participantChangedEvent.who}. Leia a descrição do grupo 👁😃 para ficar por dentro das regras `
               );
