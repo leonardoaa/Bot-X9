@@ -44,6 +44,7 @@ Após isso estará em pleno funcionamento caso o processo ocorra normalmente.
 * [NodeJs](https://nodejs.org/en/) - Utilizado para servir a aplicação
 * [TypeScript](https://www.typescriptlang.org/) - Linguagem Utilizada para o desenvolvimento
 * [Puppeteer](https://github.com/puppeteer/puppeteer) - Biblioteca utilizada para a manipulação do navegador Chrome/Chromium
+* [swagger](https://swagger.io/) - Desenvolvimento da API
 
 ## 📌 Versão
 
@@ -59,7 +60,7 @@ Todas as pessoas que Contribuíram para com o projeto
 
 Este projeto está sob a licença MIT
 
-## 🎁 Expressões de gratidão
+## 🎁 Obrigado
 
 * Conte a outras pessoas sobre este projeto 📢
 * Contribua e tenha seu nome e perfil na lista 🤓
