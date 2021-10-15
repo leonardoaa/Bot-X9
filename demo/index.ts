@@ -1,25 +1,18 @@
-//import { ClientRequest } from 'http';
 import {
   create,
   Client,
   decryptMedia,
   ev,
-  smartUserAgent,
   NotificationLanguage,
 } from "../src/index";
-//const mime = require('mime-types');
 const fs = require("fs");
 const mime = require("mime-types");
-//const uaOverride = 'WhatsApp/2.16.352 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15';
-//const tosBlockGuaranteed = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.88 Safari/537.36";
 const ON_DEATH = (fn) => process.on("exit", fn);
 let globalClient: Client;
 const express = require("express");
 
 const app = express();
-app.use(express.json({ limit: "200mb" })); //add the limit option so we can send base64 data through the api
-
-const PORT = 8082;
+app.use(express.json({ limit: "200mb" })); 
 
 ON_DEATH(async function () {
   console.log("killing session");
@@ -42,21 +35,15 @@ ev.on("STARTUP.**", async (data, sessionId) => {
 });
 
 ev.on("**", async (data, sessionId, namespace) => {
-  //console.log("\n----------")
-  //console.log('EV', data, sessionId, namespace)
-  //console.log("----------")
+ 
 });
 
 ev.on("sessionData.**", async (sessionData, sessionId) => {
-  //console.log("\n----------")
-  //console.log('sessionData', sessionId, sessionData)
-  //console.log("----------")
+  
 });
 
 ev.on("sessionDataBase64.**", async (sessionData, sessionId) => {
-  //console.log("\n----------")
-  //console.log('sessionData', sessionId, sessionData)
-  //console.log("----------")
+ 
 });
 
 create({
