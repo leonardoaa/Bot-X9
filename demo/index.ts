@@ -82,7 +82,7 @@ function start(client) {
         message.from,
         `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
         filename,
-        `@${message.author} Apagou essa imagem 🧐`
+        `@${message.author.replace('@c.us', '')}} Apagou essa imagem 🧐`
       );
     }
 
@@ -91,7 +91,7 @@ function start(client) {
       const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
       await client.sendText(
         message.from,
-        `@${message.author} Apagou o seguinte áudio enviado:🧐 `
+        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio enviado:🧐 `
       );
       await client.sendAudio(
         message.from,
@@ -105,7 +105,7 @@ function start(client) {
       const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
       await client.sendText(
         message.from,
-        `@${message.author} Apagou o seguinte áudio gravado:🧐`
+        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio gravado:🧐`
       );
       await client.sendPtt(
         message.from,
@@ -117,7 +117,7 @@ function start(client) {
     if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
       await client.sendText(
         message.from,
-        `@${message.author} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
+        `@${message.author.replace('@c.us', '')}} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
       );
     }
 
@@ -127,12 +127,12 @@ function start(client) {
       if (message.type === "video") {
         await client.sendText(
           message.from,
-          `@${message.author} apagou o seguinte vídeo 🧐 `
+          `@${message.author.replace('@c.us', '')}} apagou o seguinte vídeo 🧐 `
         );
       } else {
         await client.sendText(
           message.from,
-          `@${message.author} Apagou o seguinte arquivo 🧐 `
+          `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
         );
       }
       await client.sendFile(
@@ -144,6 +144,10 @@ function start(client) {
     if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
       const mediaData = await decryptMedia(message)
       await client.sendImageAsSticker(message.from, mediaData, { pack: 'bot-x9', author: 'bot-x9', keepScale: true })
+      await client.sendText(
+        message.from,
+        `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
+      );
     }
   });
 
