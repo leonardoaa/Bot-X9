@@ -142,10 +142,8 @@ function start(client) {
       );
     }
     if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
-      await client.sendText(
-        message.from,
-        `@${message.author} Apagou uma figurinha. Ainda não consigo mostrar figurinhas apagadas 😔`
-      );
+      const mediaData = await decryptMedia(message)
+      await client.sendImageAsSticker(message.from, mediaData, { pack: 'bot-x9', author: 'bot-x9', keepScale: true })
     }
   });
 
