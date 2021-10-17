@@ -143,11 +143,11 @@ function start(client) {
     }
     if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
       const mediaData = await decryptMedia(message)
-      await client.sendImageAsSticker(message.from, mediaData, { pack: 'bot-x9', author: 'bot-x9', keepScale: true })
       await client.sendText(
         message.from,
-        `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
+        `@${message.author.replace('@c.us', '')} Apagou a seguinte figurinha 🧐 `
       );
+      await client.sendImageAsSticker(message.from, mediaData, { pack: 'bot-x9', author: 'bot-x9', keepScale: true })
     }
   });
 
@@ -168,7 +168,7 @@ function start(client) {
           );
           client
             .sendImageAsSticker(message.from, mediaData, metadata)
-            .then(async (sticker) => {
+            .then(async () => {
               await client.sendText(message.from, `Pronto 😁`);
             });
         }
@@ -280,4 +280,16 @@ function start(client) {
       }
     }
   );
+
+
+  const isCallVerification = client.onIncomingCall(async call => {
+    // ketika seseorang menelpon nomor bot
+    if (!call.isGroup) {
+        await client.sendText(call.peerJid, `⛔ Você foi bloqueado. Para evitar incômodo.`)
+        .then(async () => {
+          client.contactBlock(call.peerJid)
+        })
+    }
+})
+
 }
