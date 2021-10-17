@@ -12,7 +12,7 @@ let globalClient: Client;
 const express = require("express");
 
 const app = express();
-app.use(express.json({ limit: "200mb" })); 
+app.use(express.json({ limit: "200mb" }));
 
 ON_DEATH(async function () {
   console.log("killing session");
@@ -35,15 +35,15 @@ ev.on("STARTUP.**", async (data, sessionId) => {
 });
 
 ev.on("**", async (data, sessionId, namespace) => {
- 
+
 });
 
 ev.on("sessionData.**", async (sessionData, sessionId) => {
-  
+
 });
 
 ev.on("sessionDataBase64.**", async (sessionData, sessionId) => {
- 
+
 });
 
 create({
@@ -61,12 +61,12 @@ create({
 
 function start(client) {
   const badWords = [
-   'palavrao1',
-   'palavrao2',
-   '...'
+    'palavrao1',
+    'palavrao2',
+    '...'
   ];
 
-  
+
   const onAdded = client.onAddedToGroup(async (message) => {  //Ao ser adicionado em um grupo dispara uma frase
     await client.sendText(
       message.id,
@@ -75,83 +75,85 @@ function start(client) {
   });
 
   const deletedMessageRecovery = client.onMessageDeleted(async (message) => {
-    if (message.type === "image") { //Verifica se a mensagem apagada foi uma imagem
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-      const mediaData = await decryptMedia(message); //descriptografa a imagem, convertendo para base64
-      await client.sendImage(
-        message.from,
-        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-        filename,
-        `@${message.author.replace('@c.us', '')}} Apagou essa imagem 🧐`
-      );
-    }
-
-    if (message.type === "audio") { //Verifica se a mensagem apagada foi um áudio
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`;  //atribui um nome ao arquivo apagado
-      const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
-      await client.sendText(
-        message.from,
-        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio enviado:🧐 `
-      );
-      await client.sendAudio(
-        message.from,
-        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-        filename
-      );
-    }
-
-    if (message.type === "ptt") { //Verifica se a mensagem apagada foi um áudio gravado
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-      const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
-      await client.sendText(
-        message.from,
-        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio gravado:🧐`
-      );
-      await client.sendPtt(
-        message.from,
-        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-        filename
-      );
-    }
-
-    if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
-      await client.sendText(
-        message.from,
-        `@${message.author.replace('@c.us', '')}} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
-      );
-    }
-
-    if (message.type === "document" || message.type === "video") {  //Verifica se a mensagem apagada uma imagem ou vídeo
-      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-      const mediaData = await decryptMedia(message); //descriptografa o documento ou vídeo, convertendo para base64
-      if (message.type === "video") {
-        await client.sendText(
+    if(message.chat.isGroup){
+      if (message.type === "image") { //Verifica se a mensagem apagada foi uma imagem
+        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+        const mediaData = await decryptMedia(message); //descriptografa a imagem, convertendo para base64
+        await client.sendImage(
           message.from,
-          `@${message.author.replace('@c.us', '')}} apagou o seguinte vídeo 🧐 `
-        );
-      } else {
-        await client.sendText(
-          message.from,
-          `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
+          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+          filename,
+          `@${message.author.replace('@c.us', '')}} Apagou essa imagem 🧐`
         );
       }
-      await client.sendFile(
-        message.from,
-        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-        filename
-      );
-    }
-    if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
-      const mediaData = await decryptMedia(message)
-      await client.sendText(
-        message.from,
-        `@${message.author.replace('@c.us', '')} Apagou a seguinte figurinha 🧐 `
-      );
-      await client.sendImageAsSticker(message.from, mediaData, { pack: 'bot-x9', author: 'bot-x9', keepScale: true })
+  
+      if (message.type === "audio") { //Verifica se a mensagem apagada foi um áudio
+        const filename = `${message.t}.${mime.extension(message.mimetype)}`;  //atribui um nome ao arquivo apagado
+        const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
+        await client.sendText(
+          message.from,
+          `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio enviado:🧐 `
+        );
+        await client.sendAudio(
+          message.from,
+          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+          filename
+        );
+      }
+  
+      if (message.type === "ptt") { //Verifica se a mensagem apagada foi um áudio gravado
+        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+        const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
+        await client.sendText(
+          message.from,
+          `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio gravado:🧐`
+        );
+        await client.sendPtt(
+          message.from,
+          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+          filename
+        );
+      }
+  
+      if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
+        await client.sendText(
+          message.from,
+          `@${message.author.replace('@c.us', '')}} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
+        );
+      }
+  
+      if (message.type === "document" || message.type === "video") {  //Verifica se a mensagem apagada uma imagem ou vídeo
+        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+        const mediaData = await decryptMedia(message); //descriptografa o documento ou vídeo, convertendo para base64
+        if (message.type === "video") {
+          await client.sendText(
+            message.from,
+            `@${message.author.replace('@c.us', '')}} apagou o seguinte vídeo 🧐 `
+          );
+        } else {
+          await client.sendText(
+            message.from,
+            `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
+          );
+        }
+        await client.sendFile(
+          message.from,
+          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+          filename
+        );
+      }
+      if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
+        const mediaData = await decryptMedia(message)
+        await client.sendText(
+          message.from,
+          `@${message.author.replace('@c.us', '')} Apagou a seguinte figurinha 🧐 `
+        );
+        await client.sendImageAsSticker(message.from, mediaData)
+      }
     }
   });
 
-  const convertToStick = client.onMessage(async (message) => { 
+  const convertToStick = client.onMessage(async (message) => {
     if (!message.chat.isGroup) {
       if (message.mimetype) {
         const mediaData = await decryptMedia(message);
@@ -210,14 +212,42 @@ function start(client) {
   });
 
   const menu = client.onMessage(async (message) => {
-    if (message.type === "chat" && message.chat.isGroup) { //Verifica se a mensagem é do tipo chat e se veio de um grupo
-      if (message.body.toLowerCase() === "!menu") { //Caso a mensagem digitada seja "!menu" dispara a lista de funcionalidades "Disparadas" 
-        await client.sendText(message.from, "OK!😁");
-        await client.sendText(
-          message.from,
-          "Esse é o *Menu de ações* 🙋‍♂️😌\nDigite *!L* - *Obter link do grupo*\nDigite *!A* - *Marcar todos os administradores*"
-        );
-      }
+    if (message.type === "chat") { //Verifica se a mensagem é do tipo chat 
+      if (message.body.toLowerCase() === "!menu" || (message.body.toLowerCase() === "menu" )) { //Caso a mensagem digitada seja "!menu" dispara a lista de funcionalidades "Disparadas" 
+        if(message.chat.isGroup){ //verifica se a mensagem veio de um grupo
+          await client.sendText(message.from, "OK!😁");
+          await client.sendText(
+            message.from,
+            "Esse é o *Menu de ações* 🙋‍♂️😌\nDigite *!L* - *Obter link do grupo*\nDigite *!A* - *Marcar todos os administradores*"
+          );
+        }else{// verifica se a mensagem veio de um chat privado
+          await client.sendText(
+            message.from,
+            "O menú de ações só está disponível quando estou em um grupo"
+          );
+          await client.sendText(
+            message.from,
+            "Ações que posso fazer caso você me adicione em um grupo:"
+          );
+          await client.sendText(
+            message.from,
+            "*1 - Dar tchau caso alguém saia do grupo*\n*2 - Dar boas vindas caso alguém entre no grupo*\n*3 - Alertar caso alguém fale palavrão*\n*4 - E o principal, recuperar qualquer mensagem apagada no grupo, informando também quem falou* 😁"
+          );
+          await client.sendText(
+            message.from,
+            "Fora isso há também o menú de ações que pode ser utilizado enviando *!menu*"
+          );
+          await client.sendText(
+            message.from,
+            "Quer que eu seja o bot/robô administrador do seu grupo? basta me adicionar nele. Só isso! 🙋‍♂️"
+          );
+          await client.sendText(
+            message.from,
+            "Caso queira apenas transformar imagem ou video em figurinha basta me enviar uma foto ou vídeo da sua galeria 🙋‍♂️"
+          );
+         
+        }
+      } 
     }
   });
 
@@ -285,11 +315,11 @@ function start(client) {
   const isCallVerification = client.onIncomingCall(async call => {
     // ketika seseorang menelpon nomor bot
     if (!call.isGroup) {
-        await client.sendText(call.peerJid, `⛔ Você foi bloqueado. Para evitar incômodo.`)
+      await client.sendText(call.peerJid, `⛔ Você foi bloqueado. Para evitar incômodo.`)
         .then(async () => {
           client.contactBlock(call.peerJid)
         })
     }
-})
+  })
 
 }
