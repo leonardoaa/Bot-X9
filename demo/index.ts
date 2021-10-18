@@ -10,6 +10,8 @@ const mime = require("mime-types");
 const ON_DEATH = (fn) => process.on("exit", fn);
 let globalClient: Client;
 const express = require("express");
+const  ytdl  =  require ( 'ytdl-core' ) ; 
+import Ffmpeg from 'fluent-ffmpeg'
 
 const app = express();
 app.use(express.json({ limit: "200mb" }));
@@ -66,6 +68,43 @@ function start(client) {
     '...'
   ];
 
+
+  const ytb = client.onMessage(async (message) => {
+    if (message.type === "chat") {
+      if(message.body.includes('https://youtu')){
+        let ytid = message.body
+        let { videoDetails: inf } = await ytdl.getInfo(ytid)
+        let dur = `${('0' + (inf.lengthSeconds / 60).toFixed(0)).slice(-2)}:${('0' + (inf.lengthSeconds % 60)).slice(-2)}`
+        let estimasi = inf.lengthSeconds / 200
+        let est = estimasi.toFixed(0)
+        let path = `./media/mp3.mp3`
+
+        client.sendFileFromUrl(message.from, `${inf.thumbnails[3].url}`, ``,
+        `Link válido!\n\n` +
+        `Título   : ${inf.title}\n` +
+        `Canal : ${inf.ownerChannelName}\n` +
+        `Duração  : ${dur}\n` +
+        `subido para o youtube em: ${inf.uploadDate}\n` +
+        `Quantidade de views    : ${inf.viewCount}\n\n`)
+        let stream = ytdl(ytid, { quality: 'highestaudio' })
+        Ffmpeg({ source: stream })
+        .setFfmpegPath('./bin/ffmpeg')
+        .on('error', (err) => {
+            console.log('Um erro ocorreu ao converter video ' + err.message)
+        })
+        .on('end', () => {
+          client.sendText(
+            message.from,
+            `Estimativa de tempo para baixar: ${est} minuto(s)`
+          );
+            client.sendFile(message.from, path, `${inf.title}.mp3`,inf.title).then()
+        })
+        .saveToFile(path)
+      }else{
+        console.log('não é um link do youtube')
+      }
+    }
+  });
 
   const onAdded = client.onAddedToGroup(async (message) => {  //Ao ser adicionado em um grupo dispara uma frase
     await client.sendText(
