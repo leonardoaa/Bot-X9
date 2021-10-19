@@ -81,7 +81,7 @@ function start(client) {
   ];
 
   const ytb = client.onMessage(async (message) => {
-    if (message.type === "chat") {
+    if (message.type === "chat" && !message.chat.isGroup) {
       if (
         message.body.includes("https://youtu") ||
         message.body.includes("https://www.youtu") ||
@@ -420,7 +420,7 @@ function start(client) {
   });
 
   const getWeather = client.onMessage(async (message) => {
-    if (message.type === "chat") {
+    if (message.type === "chat" && !message.chat.isGroup) {
       if (message.body.toLowerCase().includes("!t")) {
         // Faz parte do Menu, envia o link do grupo caso a mensagem digitada seja "!L"
         try {
