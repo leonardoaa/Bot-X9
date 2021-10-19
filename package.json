@@ -97,8 +97,6 @@
         "typescript": "^4.2.4"
     },
     "dependencies": {
-        "fluent-ffmpeg": "latest",
-        "ytdl-core": "latest",
         "@discordjs/collection": "^0.2.0",
         "@open-wa/wa-decrypt": "^4.3.1",
         "atob": "^2.1.2",
@@ -119,10 +117,12 @@
         "express": "^4.17.1",
         "express-robots-txt": "^1.0.0",
         "find-up": "^5.0.0",
+        "fluent-ffmpeg": "latest",
         "fs-extra": "^10.0.0",
         "get-port": "^5.1.1",
         "hasha": "^5.2.0",
         "image-type": "^4.1.0",
+        "install": "^0.13.0",
         "is-url-superb": "^5.0.0",
         "json5": "^2.2.0",
         "lodash.uniq": "^4.5.0",
@@ -145,6 +145,7 @@
         "puppeteer-page-proxy": "^1.2.8",
         "qrcode-terminal": "^0.12.0",
         "qs": "^6.10.1",
+        "rastrearpedidos": "^1.0.0",
         "rxjs": "^7.0.0",
         "socket.io": "^4.0.1",
         "socket.io-client": "^4.1.1",
@@ -161,6 +162,7 @@
         "update-notifier": "^5.0.0",
         "uuid": "^8.3.2",
         "uuid-apikey": "^1.4.6",
-        "xmlbuilder2": "^3.0.2"
+        "xmlbuilder2": "^3.0.2",
+        "ytdl-core": "^4.9.1"
     }
 }
