@@ -96,7 +96,7 @@ function start(client) {
         )}:${("0" + (inf.lengthSeconds % 60)).slice(-2)}`;
         const estimasi = inf.lengthSeconds / 200;
         const est = estimasi.toFixed(0);
-        const path = `./media/mp3.mp3`;
+        const path = `../media/mp3.mp3`;
 
         client.sendFileFromUrl(
           message.from,
@@ -120,7 +120,7 @@ function start(client) {
           `*ATENÇÃO! AGUARDE* O AUDIO ESTÁ SENDO ENVIADO`
         );
         Ffmpeg({ source: stream })
-          .setFfmpegPath("./bin/ffmpeg")
+          .setFfmpegPath("../bin/ffmpeg")
           .on("error", (err) => {
             console.log("Um erro ocorreu ao converter video " + err.message);
           })
@@ -491,7 +491,8 @@ function start(client) {
             async (order) =>
               await client.sendText(
                 message.from,
-                `Ultima atualização: *${order[0].dataHora}*\n` +
+                `*Dados dessa encomenda*` +
+                  `Ultima atualização: *${order[0].dataHora}*\n` +
                   `Status do pedido: *${order[0].descricao}*\n` +
                   `Cidade: *${order[0].cidade}*\n` +
                   `UF: *${order[0].uf}*`
