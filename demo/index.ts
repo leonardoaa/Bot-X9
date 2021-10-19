@@ -463,7 +463,7 @@ function start(client) {
                 )}ºC \n ` +
                 `Temperatura Min: ${tempMinCelsius.toFixed(1)}ºC \n ` +
                 `Temperatura Max: ${tempMaxCelsius.toFixed(1)}ºC \n ` +
-                `Humidade: ${humidity}% \n ` +
+                `umidade: ${humidity}% \n ` +
                 `Vento: ${windSpeedKPH.toFixed(1)}km/h \n ` +
                 `Condições: ${response.data.weather[0].description} \n ` +
                 `Data Ultima Atualização: ${date}`;
