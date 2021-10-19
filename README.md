@@ -18,6 +18,8 @@ As ações que podem ser desparadas pode ser encontradas utilizando o comando "!
 As ações privadas são utilizadas diretamente no chat privado do bot
 * Enviar uma imagem para o bot irá está solicitando que ele transforme a mesma em figurinha
 * Enviar um vídeo para o bot irá está solicitando que ele transforme o mesmo em figurinha animada
+* Enviar "!T cidade" mostra informações do tempo atual de uma determinada cidade ex: !T Fortaleza
+* Enviar um link do youtube para o bot irá fazer com que ele transforme o vídeo em audio
 
 ### 📋 Pré-requisitos
 * NodeJs
