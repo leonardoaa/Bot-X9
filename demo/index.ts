@@ -10,8 +10,10 @@ const mime = require("mime-types");
 const ON_DEATH = (fn) => process.on("exit", fn);
 let globalClient: Client;
 const express = require("express");
-const  ytdl  =  require ( 'ytdl-core' ) ; 
-import Ffmpeg from 'fluent-ffmpeg'
+const ytdl = require('ytdl-core');
+const axios = require('axios');
+import Ffmpeg from 'fluent-ffmpeg';
+import unixTime from "./utils/unixTime";
 
 const app = express();
 app.use(express.json({ limit: "200mb" }));
@@ -68,10 +70,13 @@ function start(client) {
     '...'
   ];
 
-
   const ytb = client.onMessage(async (message) => {
     if (message.type === "chat") {
-      if(message.body.includes('https://youtu')){
+      if (message.body.includes('https://youtu') ||
+        message.body.includes('https://www.youtu') ||
+        message.body.includes('http://youtu') ||
+        message.body.includes('http://www.youtu') ||
+        message.body.includes('www.youtu')) {
         let ytid = message.body
         let { videoDetails: inf } = await ytdl.getInfo(ytid)
         let dur = `${('0' + (inf.lengthSeconds / 60).toFixed(0)).slice(-2)}:${('0' + (inf.lengthSeconds % 60)).slice(-2)}`
@@ -80,28 +85,29 @@ function start(client) {
         let path = `./media/mp3.mp3`
 
         client.sendFileFromUrl(message.from, `${inf.thumbnails[3].url}`, ``,
-        `Link válido!\n\n` +
-        `Título   : ${inf.title}\n` +
-        `Canal : ${inf.ownerChannelName}\n` +
-        `Duração  : ${dur}\n` +
-        `subido para o youtube em: ${inf.uploadDate}\n` +
-        `Quantidade de views    : ${inf.viewCount}\n\n`)
+          `Título   : *${inf.title}*\n` +
+          `Canal : *${inf.ownerChannelName}*\n` +
+          `Duração  : *${dur}*\n` +
+          `subido para o youtube em: *${inf.uploadDate}*\n` +
+          `Quantidade de views    : *${inf.viewCount}*\n\n`)
         let stream = ytdl(ytid, { quality: 'highestaudio' })
+        client.sendText(
+          message.from,
+          `Estimativa de tempo para baixar: ${Number(est)>=1?'*Mais de um minuto*':'*Menos de um minuto*'}\ninformações do vídeo:`
+        );
+        client.sendText(
+          message.from,
+          `*ATENÇÃO! AGUARDE* O AUDIO ESTÁ SENDO ENVIADO`
+        );
         Ffmpeg({ source: stream })
-        .setFfmpegPath('./bin/ffmpeg')
-        .on('error', (err) => {
+          .setFfmpegPath('./bin/ffmpeg')
+          .on('error', (err) => {
             console.log('Um erro ocorreu ao converter video ' + err.message)
-        })
-        .on('end', () => {
-          client.sendText(
-            message.from,
-            `Estimativa de tempo para baixar: ${est} minuto(s)`
-          );
-            client.sendFile(message.from, path, `${inf.title}.mp3`,inf.title).then()
-        })
-        .saveToFile(path)
-      }else{
-        console.log('não é um link do youtube')
+          })
+          .on('end', () => {
+            client.sendFile(message.from, path, `${inf.title}.mp3`, inf.title).then()
+          })
+          .saveToFile(path)
       }
     }
   });
@@ -114,81 +120,75 @@ function start(client) {
   });
 
   const deletedMessageRecovery = client.onMessageDeleted(async (message) => {
-    if(message.chat.isGroup){
-      if (message.type === "image") { //Verifica se a mensagem apagada foi uma imagem
-        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-        const mediaData = await decryptMedia(message); //descriptografa a imagem, convertendo para base64
-        await client.sendImage(
-          message.from,
-          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-          filename,
-          `@${message.author.replace('@c.us', '')}} Apagou essa imagem 🧐`
-        );
-      }
-  
-      if (message.type === "audio") { //Verifica se a mensagem apagada foi um áudio
-        const filename = `${message.t}.${mime.extension(message.mimetype)}`;  //atribui um nome ao arquivo apagado
-        const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
+    if (message.type === "image") { //Verifica se a mensagem apagada foi uma imagem
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa a imagem, convertendo para base64
+      await client.sendImage(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+        filename,
+        `@${message.author.replace('@c.us', '')} Apagou essa imagem 🧐`
+      );
+    }
+    if (message.type === "audio") { //Verifica se a mensagem apagada foi um áudio
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`;  //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o áudio, convertendo para base64
+      await client.sendText(
+        message.from,
+        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio enviado:🧐 `
+      );
+      await client.sendAudio(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+        filename
+      );
+    }
+    if (message.type === "ptt") { //Verifica se a mensagem apagada foi um áudio gravado
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
+      await client.sendText(
+        message.from,
+        `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio gravado:🧐`
+      );
+      await client.sendPtt(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+        filename
+      );
+    }
+    if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
+      await client.sendText(
+        message.from,
+        `@${message.author.replace('@c.us', '')}} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
+      );
+    }
+    if (message.type === "document" || message.type === "video") {  //Verifica se a mensagem apagada uma imagem ou vídeo
+      const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
+      const mediaData = await decryptMedia(message); //descriptografa o documento ou vídeo, convertendo para base64
+      if (message.type === "video") {
         await client.sendText(
           message.from,
-          `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio enviado:🧐 `
+          `@${message.author.replace('@c.us', '')}} apagou o seguinte vídeo 🧐 `
         );
-        await client.sendAudio(
-          message.from,
-          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-          filename
-        );
-      }
-  
-      if (message.type === "ptt") { //Verifica se a mensagem apagada foi um áudio gravado
-        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-        const mediaData = await decryptMedia(message); //descriptografa o audio gravado, denominado como PTT, convertendo para base64
+      } else {
         await client.sendText(
           message.from,
-          `@${message.author.replace('@c.us', '')}} Apagou o seguinte áudio gravado:🧐`
-        );
-        await client.sendPtt(
-          message.from,
-          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-          filename
+          `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
         );
       }
-  
-      if (message.type === "chat") {  //Verifica se a mensagem apagada apenas texto
-        await client.sendText(
-          message.from,
-          `@${message.author.replace('@c.us', '')}} Apagou a seguinte mensagem:\n *${message.body}*  🧐 `
-        );
-      }
-  
-      if (message.type === "document" || message.type === "video") {  //Verifica se a mensagem apagada uma imagem ou vídeo
-        const filename = `${message.t}.${mime.extension(message.mimetype)}`; //atribui um nome ao arquivo apagado
-        const mediaData = await decryptMedia(message); //descriptografa o documento ou vídeo, convertendo para base64
-        if (message.type === "video") {
-          await client.sendText(
-            message.from,
-            `@${message.author.replace('@c.us', '')}} apagou o seguinte vídeo 🧐 `
-          );
-        } else {
-          await client.sendText(
-            message.from,
-            `@${message.author.replace('@c.us', '')}} Apagou o seguinte arquivo 🧐 `
-          );
-        }
-        await client.sendFile(
-          message.from,
-          `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
-          filename
-        );
-      }
-      if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
-        const mediaData = await decryptMedia(message)
-        await client.sendText(
-          message.from,
-          `@${message.author.replace('@c.us', '')} Apagou a seguinte figurinha 🧐 `
-        );
-        await client.sendImageAsSticker(message.from, mediaData)
-      }
+      await client.sendFile(
+        message.from,
+        `data:${message.mimetype};base64,${mediaData.toString("base64")}`,
+        filename
+      );
+    }
+    if (message.type === "sticker") { //Verifica se a mensagem apagada foi uma figurinha/sticker
+      const mediaData = await decryptMedia(message)
+      await client.sendText(
+        message.from,
+        `@${message.author.replace('@c.us', '')} Apagou a seguinte figurinha 🧐 `
+      );
+      await client.sendImageAsSticker(message.from, mediaData)
     }
   });
 
@@ -252,41 +252,33 @@ function start(client) {
 
   const menu = client.onMessage(async (message) => {
     if (message.type === "chat") { //Verifica se a mensagem é do tipo chat 
-      if (message.body.toLowerCase() === "!menu" || (message.body.toLowerCase() === "menu" )) { //Caso a mensagem digitada seja "!menu" dispara a lista de funcionalidades "Disparadas" 
-        if(message.chat.isGroup){ //verifica se a mensagem veio de um grupo
+      if (message.body.toLowerCase() === "!menu" || (message.body.toLowerCase() === "menu")) { //Caso a mensagem digitada seja "!menu" dispara a lista de funcionalidades "Disparadas" 
+        if (message.chat.isGroup) { //verifica se a mensagem veio de um grupo
           await client.sendText(message.from, "OK!😁");
           await client.sendText(
             message.from,
             "Esse é o *Menu de ações* 🙋‍♂️😌\nDigite *!L* - *Obter link do grupo*\nDigite *!A* - *Marcar todos os administradores*"
           );
-        }else{// verifica se a mensagem veio de um chat privado
+        } else {// verifica se a mensagem veio de um chat privado
           await client.sendText(
             message.from,
-            "O menú de ações só está disponível quando estou em um grupo"
+            `Esse é o Menú aqui do privado 🙋‍♂️:\n`+
+            `*1 - Me envie um video ou imagem que irei transformar em figurinha*😀\n`+
+            `*2 - Compartilhe ou me envie um link de musica do youtube que irei transformar em MP3* 🎵🎶\n`+
+            `*3 - Quer saber informações sobre o tempo? me envie "!T sua cidade" ex: !T fortaleza (sem acento!)* ⛈🌦⛱`
           );
           await client.sendText(
             message.from,
-            "Ações que posso fazer caso você me adicione em um grupo:"
+            `Ações que posso fazer caso você me adicione em um grupo:\n`+
+            `*1 - Dar tchau caso alguém saia do grupo*\n`+
+            `*2 - Dar boas vindas caso alguém entre no grupo*\n`+
+            `*3 - Alertar caso alguém fale palavrão*\n`+
+            `*4 - E o principal, recuperar qualquer mensagem apagada no grupo, informando também quem falou*\n`+
+            `Fora isso há também o menú de ações que pode ser utilizado enviando *!menu*\n`+
+            `Quer que eu seja o bot/robô administrador do seu grupo? basta me adicionar nele. Só isso! 🙋‍♂️`
           );
-          await client.sendText(
-            message.from,
-            "*1 - Dar tchau caso alguém saia do grupo*\n*2 - Dar boas vindas caso alguém entre no grupo*\n*3 - Alertar caso alguém fale palavrão*\n*4 - E o principal, recuperar qualquer mensagem apagada no grupo, informando também quem falou* 😁"
-          );
-          await client.sendText(
-            message.from,
-            "Fora isso há também o menú de ações que pode ser utilizado enviando *!menu*"
-          );
-          await client.sendText(
-            message.from,
-            "Quer que eu seja o bot/robô administrador do seu grupo? basta me adicionar nele. Só isso! 🙋‍♂️"
-          );
-          await client.sendText(
-            message.from,
-            "Caso queira apenas transformar imagem ou video em figurinha basta me enviar uma foto ou vídeo da sua galeria 🙋‍♂️"
-          );
-         
         }
-      } 
+      }
     }
   });
 
@@ -294,6 +286,7 @@ function start(client) {
     if (message.type === "chat") {
       if (message.body.toLowerCase() === "!l") { // Faz parte do Menu, envia o link do grupo caso a mensagem digitada seja "!L"
         try {
+          await client.sendText('Para utilizar esse recurso preciso ser administrador 🙋‍♂️');
           client.getGroupInviteLink(message.from).then(async (resposta) => {
             await client.sendText(message.from, resposta);
           });
@@ -305,7 +298,6 @@ function start(client) {
   });
 
   const getAdmins = client.onMessage(async (message) => {
-
     if (message.type === "chat") {
       if (message.body.toLowerCase() === "!a") { //Faz parte do menu, chama atenção de todos os administradores caso a mensagem digitada seja "!A"
         try {
@@ -350,7 +342,6 @@ function start(client) {
     }
   );
 
-
   const isCallVerification = client.onIncomingCall(async call => {
     // ketika seseorang menelpon nomor bot
     if (!call.isGroup) {
@@ -360,5 +351,64 @@ function start(client) {
         })
     }
   })
+
+  const getWeather = client.onMessage(async (message) => {
+    if (message.type === "chat") {
+      if (message.body.toLowerCase().includes('!t')) {
+        // Faz parte do Menu, envia o link do grupo caso a mensagem digitada seja "!L"
+        try {
+
+          const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
+          const API_KEY = 'd55bf564bc5d6479644aa543df154f0b';
+          const LOCATION = message.body.substring(3);
+          const LANG = 'pt_br';
+          const FULL_API_URL = `${API_URL}?q=${LOCATION}&appid=${API_KEY}&lang=${LANG}`;
+
+          axios
+            .get(FULL_API_URL)
+            .then(async response => {
+
+              const kelvins = 273.15;
+              // Obtem os dados de temperatura e demais
+              const tempActual = response.data.main.temp;
+              const thermalSensation = response.data.main.feels_like;
+              const tempMin = response.data.main.temp_min;
+              const tempMax = response.data.main.temp_max;
+              const humidity = response.data.main.humidity;
+              const windSpeed = response.data.wind.speed;
+              const cityName = response.data.name;
+              const countryName = response.data.sys.country;
+              const date = unixTime(response.data.dt);
+
+              // Converte as temperaturas de Kelvins para Celsius
+              const tempCelsius = tempActual - kelvins;
+              const thermalSensationCelsius = thermalSensation - kelvins;
+              const tempMinCelsius = tempMin - kelvins
+              const tempMaxCelsius = tempMax - kelvins;
+
+              // Convertendo para KM por Hora
+              const windSpeedKPH = windSpeed * 3.6;
+
+              // Construindo a frase para ser enviado
+              const weatherDisplay =
+                `*${cityName}-${countryName}* \n` +
+                `Temperadura Atual: ${tempCelsius.toFixed(1)}ºC \n ` +
+                `Sensação Térmica: ${thermalSensationCelsius.toFixed(1)}ºC \n ` +
+                `Temperatura Min: ${tempMinCelsius.toFixed(1)}ºC \n ` +
+                `Temperatura Max: ${tempMaxCelsius.toFixed(1)}ºC \n ` +
+                `Humidade: ${humidity}% \n ` +
+                `Vento: ${windSpeedKPH.toFixed(1)}km/h \n ` +
+                `Condições: ${response.data.weather[0].description} \n ` +
+                `Data Ultima Atualização: ${date}`;
+              await client.sendText(message.from, weatherDisplay);
+            })
+            .catch(async error => await client.sendText(message.from, `⚠ Cidade não encontrada! ⚠\nPor Favor verifique a ortografia (Não utilize acentos) ou se é uma Cidade existente`));
+
+        } catch (error) {
+          console.log("error:", error);
+        }
+      }
+    }
+  });
 
 }
